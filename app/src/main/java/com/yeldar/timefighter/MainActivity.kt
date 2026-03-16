@@ -40,7 +40,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -64,30 +63,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         score++
-
-        val newScore = getString(R.string.your_score, score)
-        binding.textGameScore.text = newScore
+        setScore()
     }
 
     private fun restoreGame() {
-        val restoredScore = getString(R.string.your_score, score)
-        binding.textGameScore.text = restoredScore
+        setScore()
+        setTimeLeft()
 
-        val restoredTimeLeft = getString(R.string.time_left, timeLeft)
-        binding.textTimeLeft.text = restoredTimeLeft
-
-        countDownTimer = object : CountDownTimer((timeLeft * 1000).toLong(), countDownInterval) {
-            override fun onFinish() {
-                endGame()
-            }
-
-            override fun onTick(millisUntilFinished: Long) {
-                timeLeft = (millisUntilFinished / 1000).toInt()
-
-                val timeLeftString = getString(R.string.time_left, timeLeft)
-                binding.textTimeLeft.text = timeLeftString
-            }
-        }
+        initTimer((timeLeft * 1000).toLong())
 
         countDownTimer.start()
         gameStarted = true
@@ -96,24 +79,9 @@ class MainActivity : AppCompatActivity() {
     private fun resetGame() {
         score = 0
 
-        val initialScore = getString(R.string.your_score, score)
-        binding.textGameScore.text = initialScore
-
-        val initialTimeLeft = getString(R.string.time_left, timeLeft)
-        binding.textTimeLeft.text = initialTimeLeft
-
-        countDownTimer = object : CountDownTimer(initialCountDown, countDownInterval) {
-            override fun onFinish() {
-                endGame()
-            }
-
-            override fun onTick(millisUntilFinished: Long) {
-                timeLeft = (millisUntilFinished / 1000).toInt()
-
-                val timeLeftString = getString(R.string.time_left, timeLeft)
-                binding.textTimeLeft.text = timeLeftString
-            }
-        }
+        setScore()
+        initTimer(initialCountDown)
+        setTimeLeft()
 
         gameStarted = false
     }
@@ -126,6 +94,31 @@ class MainActivity : AppCompatActivity() {
     private fun endGame() {
         Toast.makeText(this, getString(R.string.game_over, score), Toast.LENGTH_LONG).show()
         resetGame()
+    }
+
+    private fun initTimer(countDownTime: Long) {
+        countDownTimer = object : CountDownTimer(countDownTime, countDownInterval) {
+            override fun onFinish() {
+                endGame()
+            }
+
+            override fun onTick(millisUntilFinished: Long) {
+                timeLeft = (millisUntilFinished / 1000).toInt()
+
+                val timeLeftString = getString(R.string.time_left, timeLeft)
+                binding.textTimeLeft.text = timeLeftString
+            }
+        }
+    }
+
+    private fun setScore() {
+        val initialScore = getString(R.string.your_score, score)
+        binding.textGameScore.text = initialScore
+    }
+
+    private fun setTimeLeft() {
+        val initialTimeLeft = getString(R.string.time_left, timeLeft)
+        binding.textTimeLeft.text = initialTimeLeft
     }
 
     companion object {
